@@ -1,70 +1,174 @@
-# Getting Started with Create React App
+# Brown Green Retail - E-Commerce App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern responsive e-commerce web application with React frontend and Node.js backend.
+
+## Features
+
+- ✅ Responsive design (mobile, tablet, desktop)
+- ✅ User authentication (signup/login with password hashing)
+- ✅ Product catalog with cart management
+- ✅ Quantity increment/decrement controls
+- ✅ Order checkout via backend API
+- ✅ User data persistence with Node.js and JSON files
+- ✅ Company info and contact page with social links
+
+## Project Structure
+
+```
+brown-green-retail/
+├── src/                      # React frontend
+│   ├── components/           # React components
+│   │   ├── Header.js
+│   │   ├── Home.js
+│   │   ├── ProductList.js
+│   │   ├── Cart.js
+│   │   ├── Login.js
+│   │   ├── Signup.js
+│   │   └── Shop.css          # Responsive styles (mobile/tablet/desktop)
+│   ├── data/
+│   │   └── products.js
+│   ├── App.js
+│   └── index.js
+├── backend/                  # Node.js backend with Express
+│   ├── server.js             # Express server with API routes
+│   ├── db.js                 # JSON file-based data persistence
+│   ├── package.json
+│   ├── .env.example
+│   └── data/                 # JSON data files (auto-created)
+│       ├── users.json
+│       └── orders.json
+├── package.json
+└── README.md
+```
+
+## Quick Start
+
+### 1. Install & Run Backend
+
+```powershell
+cd backend
+npm install
+copy .env.example .env
+npm start
+```
+
+Backend runs on `http://localhost:5000`
+
+### 2. Install & Run Frontend (New Terminal)
+
+```powershell
+npm install
+copy .env.example .env
+npm start
+```
+
+Frontend runs on `http://localhost:3000`
+
+## API Endpoints
+
+### Authentication
+
+- **POST** `/api/signup` - Create account
+
+  ```json
+  { "name": "John", "email": "john@example.com", "password": "pass123" }
+  ```
+
+- **POST** `/api/login` - Login
+  ```json
+  { "email": "john@example.com", "password": "pass123" }
+  ```
+
+### Orders
+
+- **POST** `/api/orders` - Submit order
+
+  ```json
+  { "email": "user@example.com", "items": [...], "total": 99.99 }
+  ```
+
+- **GET** `/api/orders/:orderId` - Get order details
+
+## Responsive Design
+
+Fully responsive with optimized layouts for:
+
+- **Desktop** (1024px+): 4-column product grid, horizontal navigation
+- **Tablet** (768px - 1024px): 3-column grid, wrapped navigation
+- **Mobile** (480px - 768px): 2-column grid, stacked cart items
+- **Small Mobile** (< 480px): Single column, compact controls
+
+## Environment Variables
+
+**Frontend (.env):**
+
+```
+REACT_APP_API_BASE=http://localhost:5000
+```
+
+**Backend (.env):**
+
+```
+PORT=5000
+CORS_ORIGIN=http://localhost:3000
+NODE_ENV=development
+```
+
+## Data Storage
+
+- **Users**: `backend/data/users.json` (passwords hashed with bcryptjs)
+- **Orders**: `backend/data/orders.json`
+- **Session**: `localStorage` (frontend)
+
+## Testing the App
+
+1. **Home Page**: `/` - View company info and social links
+2. **Shop**: `/shop` - Browse products and add to cart
+3. **Signup**: `/signup` - Create a new account
+4. **Login**: `/login` - Login with credentials
+5. **Cart**: `/cart` - Review cart, adjust quantities, checkout
+
+## Mobile Testing
+
+Test responsiveness using:
+
+- Browser DevTools (F12) → Toggle device toolbar
+- Resize browser window to trigger media queries
+
+## Troubleshooting
+
+| Issue                        | Solution                                                   |
+| ---------------------------- | ---------------------------------------------------------- |
+| Backend won't start          | Check port 5000 is free; ensure Node.js installed          |
+| Frontend can't reach API     | Verify `REACT_APP_API_BASE` env var and backend is running |
+| Signup/login fails           | Check `backend/data/users.json` exists and is writable     |
+| Styles not loading on mobile | Clear browser cache (Ctrl+Shift+Delete)                    |
 
 ## Available Scripts
 
-In the project directory, you can run:
+### Frontend
 
-### `npm start`
+- `npm start` - Run dev server (port 3000)
+- `npm run build` - Build for production
+- `npm test` - Run tests
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Backend
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- `npm start` - Run server (port 5000)
+- `npm run dev` - Run with nodemon (auto-restart on changes)
 
-### `npm test`
+## Future Enhancements
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- [ ] Real database (MongoDB/PostgreSQL)
+- [ ] Payment processing (Stripe/PayPal)
+- [ ] Email notifications
+- [ ] Admin dashboard
+- [ ] Product search & filtering
+- [ ] JWT authentication tokens
+- [ ] Rate limiting & security headers
+- [ ] Order tracking
+- [ ] User reviews & ratings
 
-### `npm run build`
+## License
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+MIT
