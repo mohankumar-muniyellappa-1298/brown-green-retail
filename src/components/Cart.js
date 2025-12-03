@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5000';
 
 export default function Cart({ cart, updateQuantity, removeFromCart, onBack }) {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const total = cart.reduce((s, i) => s + i.price * (i.quantity || 1), 0);
-  const handleCheckout = () => {
+
+  const handleCheckout = async () => {
     if (!cart || cart.length === 0) {
       alert('Your cart is empty');
       return;
     }
+
     let currentUser = null;
     try {
       currentUser = JSON.parse(localStorage.getItem('bgr_current_user'));
@@ -16,34 +21,48 @@ export default function Cart({ cart, updateQuantity, removeFromCart, onBack }) {
       currentUser = null;
     }
 
-    const recipient = 'browngreenretail@gmail.com';
     const userEmail = (currentUser && currentUser.email) ? currentUser.email : '';
-    const subject = `New order from ${userEmail || 'guest'}`;
 
-    const lines = [];
-    lines.push('Order details from Brown Green Retail');
-    if (userEmail) lines.push(`Customer email: ${userEmail}`);
-    lines.push('');
-    cart.forEach((item, idx) => {
-      const qty = item.quantity || 1;
-      lines.push(
-        `${idx + 1}. ${item.name} — ${item.color} — ${qty} x $${item.price.toFixed(2)} = $${(
-          item.price * qty
-        ).toFixed(2)}`
-      );
-    });
-    lines.push('');
-    lines.push(`Total: $${total.toFixed(2)}`);
-    lines.push('');
-    lines.push('Please get back to the customer with order confirmation and shipping details.');
+    if (!userEmail) {
+      alert('Please log in to proceed with checkout');
+      navigate('/login');
+      return;
+    }
 
-    const body = lines.join('\n');
+    setLoading(true);
 
-    const mailto = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailto;
+    try {
+      const response = await fetch(`${API_BASE}/api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUser.id || null,
+          email: userEmail,
+          items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            color: item.color,
+            quantity: item.quantity || 1,
+          })),
+          total: total.toFixed(2),
+        }),
+      });
 
-     alert('we will receive your order details once you send the auto generated mail which opened');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Order submission failed');
+      }
+
+      alert(`✅ your order details received successfully, we will get back to you\n\nOrder ID: ${data.orderId}`);
+    } catch (err) {
+      alert(`❌ Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <div className="cart-section">
       <h2>Shopping Cart</h2>
@@ -78,7 +97,9 @@ export default function Cart({ cart, updateQuantity, removeFromCart, onBack }) {
           </div>
           <div className="cart-total">
             <strong>Total: ${total.toFixed(2)}</strong>
-            <button className="checkout-btn" onClick={handleCheckout}>Proceed to Checkout</button>
+            <button className="checkout-btn" onClick={handleCheckout} disabled={loading}>
+              {loading ? 'Processing...' : 'Proceed to Checkout'}
+            </button>
           </div>
         </>
       )}
@@ -87,7 +108,6 @@ export default function Cart({ cart, updateQuantity, removeFromCart, onBack }) {
         className="back-btn"
         onClick={() => {
           if (typeof onBack === 'function') return onBack();
-          // fallback to route navigation when onBack is not provided
           navigate('/shop');
         }}
       >

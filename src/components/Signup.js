@@ -1,44 +1,65 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5000';
+
 export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem('bgr_users') || '[]');
-    if (users.find((u) => u.email === email)) {
-      alert('An account with that email already exists');
-      return;
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(`${API_BASE}/api/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
+
+      alert('Account created — you can now log in');
+      navigate('/login');
+    } catch (err) {
+      setError(err.message);
+      alert(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
-    const user = { name, email, password };
-    users.push(user);
-    localStorage.setItem('bgr_users', JSON.stringify(users));
-    alert('Account created — you can now log in');
-    navigate('/login');
   };
 
   return (
     <main className="products-section">
       <h2>Create Account</h2>
       <form className="auth-form" onSubmit={handleSubmit} style={{ maxWidth: 420, margin: '1rem auto' }}>
+        {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
         <label>
           Full name
-          <input value={name} onChange={(e) => setName(e.target.value)} required />
+          <input value={name} onChange={(e) => setName(e.target.value)} required disabled={loading} />
         </label>
         <label>
           Email
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} />
         </label>
         <label>
           Password
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={loading} />
         </label>
         <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-          <button type="submit" className="checkout-btn">Create Account</button>
+          <button type="submit" className="checkout-btn" disabled={loading}>
+            {loading ? 'Creating...' : 'Create Account'}
+          </button>
         </div>
       </form>
     </main>
